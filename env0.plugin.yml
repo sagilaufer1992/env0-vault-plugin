@@ -1,0 +1,39 @@
+name: Vault
+inputs:
+  version:
+    description: The specific version of Vault you wish to use
+    required: true
+  address:
+    description: The address of Vault
+    required: true
+  role:
+    description: The role in Vault
+    required: true
+  jwt_auth_name:
+    description: The name of the enabled jwt auth within vault to authenticate against
+    required: true
+  token:
+    description: The token that will be used for authenticating into Vault. if none provided, will use your organization's OIDC token from the env0 platform (if exists).
+  secrets:
+    description: Secrets to be fetched from Vault
+    required: true
+
+run:
+  exec: |
+    if [ "${inputs.version}" == "latest" ]; then echo "This plugin requires a specific Vault version" && exit 2; fi
+
+    echo "Installing vault client..."
+    curl -sL https://releases.hashicorp.com/vault/${inputs.version}/vault_${inputs.version}_linux_amd64.zip -o vault1.zip
+    unzip -o vault1.zip
+    ./vault --version    
+    
+    echo "Logging in to Vault"
+    export TOKEN=`${inputs.token} || $ENV0_OIDC_TOKEN`
+    export VAULT_TOKEN=$(./vault write auth/${inputs.jwt_auth_name}/login role="${inputs.role}" jwt="${TOKEN}" -format=json | jq --raw-output '.auth.client_token')
+
+    echo "Exporting secrets" 
+    foreach secret ( ${inputs.secrets} )
+      field=`echo $secret | awk -F: '{print $2}'`
+      path=`echo $secret | awk -F: '{print $1}'`
+      ./vault kv get -field=$field $path 
+    end
