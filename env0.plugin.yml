@@ -20,10 +20,12 @@ inputs:
 
 run:
   exec: |
-    if [ "${inputs.version}" == "latest" ]; then echo "This plugin requires a specific Vault version" && exit 2; fi
+    export VERSION="${inputs.version}"
+    
+    if [ $VERSION == "latest" ]; then echo "This plugin requires a specific Vault version" && exit 2; fi
 
     echo "Installing vault client..."
-    curl -sL "https://releases.hashicorp.com/vault/${inputs.version}/vault_${inputs.version}_linux_amd64.zip" -o vault.zip
+    curl -sL "https://releases.hashicorp.com/vault/$VERSION/vault_$VERSION_linux_amd64.zip" -o vault.zip
     unzip -o vault.zip
     ./vault --version    
     
