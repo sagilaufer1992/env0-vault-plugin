@@ -31,7 +31,8 @@ run:
     ./vault --version    
     
     echo "Logging in to Vault"
-    export TOKEN=`"${inputs.token}" || $ENV0_OIDC_TOKEN`
+    export TOKEN="${inputs.token}" || $ENV0_OIDC_TOKEN
+    echo $TOKEN
     export VAULT_TOKEN=$(./vault write auth/${inputs.jwt_auth_name}/login role="${inputs.role}" jwt="${TOKEN}" -format=json | jq --raw-output '.auth.client_token')
 
     echo "Exporting secrets" 
