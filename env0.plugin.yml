@@ -36,8 +36,9 @@ run:
     export VAULT_TOKEN=$(./vault write auth/${inputs.jwt_auth_name}/login role="${inputs.role}" jwt="${TOKEN}" -format=json | jq --raw-output '.auth.client_token')
 
     echo "Exporting secrets" 
-    foreach secret ( ${inputs.secrets} )
-      field=`echo $secret | awk -F: '{print $2}'`
-      path=`echo $secret | awk -F: '{print $1}'`
-      ./vault kv get -field=$field $path 
-    end
+    for secret in  ${inputs.secrets}
+      do
+        field=`echo $secret | awk -F: '{print $2}'`
+        path=`echo $secret | awk -F: '{print $1}'`
+        ./vault kv get -field=$field $path 
+    done
