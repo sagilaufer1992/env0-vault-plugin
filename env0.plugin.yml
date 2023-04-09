@@ -21,6 +21,7 @@ inputs:
 run:
   exec: |
     export VERSION="${inputs.version}"
+    export VAULT_ADDR="${inputs.address}"
     
     if [ "$VERSION" == "latest" ]; then echo "This plugin requires a specific Vault version" && exit 2; fi
 
